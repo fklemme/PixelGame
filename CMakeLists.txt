@@ -20,7 +20,6 @@ target_sources(${PROJECT_NAME} PRIVATE ${header} PRIVATE ${source})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include PREFIX "Header Files" FILES ${header})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/source PREFIX "Source Files" FILES ${source})
 
-
 # Enable more warnings
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4)
@@ -28,20 +27,24 @@ else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
 endif()
 
+# --- Dependencies for olc::PixelGameEngine ---
+if (MSVC)
+    # Windows
+    # No declarations needed!?
+else()
+    # Linux
+    find_package(X11 REQUIRED)
+    target_link_libraries(${PROJECT_NAME} X11)
 
-# Dependencies for olc::PixelGameEngine
-find_package(X11 REQUIRED)
-target_link_libraries(${PROJECT_NAME} X11)
+    find_package(OpenGL COMPONENTS OpenGL GLX REQUIRED)
+    target_link_libraries(${PROJECT_NAME} OpenGL GLX)
 
-find_package(OpenGL COMPONENTS OpenGL GLX REQUIRED)
-target_link_libraries(${PROJECT_NAME} OpenGL GLX)
+    find_package(Threads REQUIRED)
+    target_link_libraries(${PROJECT_NAME} Threads::Threads)
 
-find_package(Threads REQUIRED)
-target_link_libraries(${PROJECT_NAME} Threads::Threads)
-
-find_package(PNG REQUIRED)
-target_link_libraries(${PROJECT_NAME} ${PNG_LIBRARIES})
-
+    find_package(PNG REQUIRED)
+    target_link_libraries(${PROJECT_NAME} ${PNG_LIBRARIES})
+endif()
 
 # Copy game resources to build directory.
 #file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
